@@ -1,11 +1,18 @@
 import streamlit as st
 import pandas as pd
 import os
+import smtplib
+import threading
+import time
+import schedule
 from datetime import date, datetime
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 CSV_FILE = "daily_items.csv"
 COLUMNS = ["商品名", "カテゴリ", "在庫数", "単位", "消費期限", "買い物リスト"]
 
+# ========== データ読み書き ==========
 def load_data():
     if os.path.exists(CSV_FILE):
         df = pd.read_csv(CSV_FILE, dtype=str)
@@ -19,6 +26,122 @@ def load_data():
 def save_data(df):
     df.to_csv(CSV_FILE, index=False)
 
+# ========== 消費期限チェック ==========
+def get_expiring_items(df, days=7):
+    today = date.today()
+    alert_items = []
+    for _, row in df.iterrows():
+        if pd.notna(row["消費期限"]) and str(row["消費期限"]).strip() != "":
+            try:
+                exp = datetime.strptime(str(row["消費期限"]), "%Y-%m-%d").date()
+                days_left = (exp - today).days
+                if days_left <= days:
+                    alert_items.append((row["商品名"], days_left))
+            except:
+                pass
+    return alert_items
+
+# ========== レシピ提案（AI） ==========
+def get_recipe_suggestion(food_items, for_kids, servings):
+    import urllib.request
+    import json
+
+    if not food_items:
+        return "食品カテゴリの在庫がありません。食材を登録してください。"
+
+    kids_text = "子どもも食べられる" if for_kids else "大人向け"
+    items_text = "、".join(food_items)
+
+    prompt = f"""
+以下の食材が在庫にあります：{items_text}
+
+条件：
+- {kids_text}レシピ
+- {servings}人前
+- 今日の献立として3つ提案してください
+- 各レシピは「料理名」「主な食材」「簡単な作り方（3ステップ）」を含めてください
+- 日本語で答えてください
+"""
+
+    try:
+        ANTHROPIC_API_KEY = st.secrets.get("ANTHROPIC_API_KEY", "")
+        if not ANTHROPIC_API_KEY:
+            return "APIキーが設定されていません。Streamlit CloudのSecretsに ANTHROPIC_API_KEY を追加してください。"
+
+        data = json.dumps({
+            "model": "claude-sonnet-4-20250514",
+            "max_tokens": 1000,
+            "messages": [{"role": "user", "content": prompt}]
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=data,
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=30) as res:
+            result = json.loads(res.read().decode("utf-8"))
+            return result["content"][0]["text"]
+    except Exception as e:
+        return f"レシピ取得に失敗しました：{e}"
+
+# ========== Gmail送信 ==========
+def send_email(subject, body):
+    try:
+        gmail_address = st.secrets["GMAIL_ADDRESS"]
+        app_password = st.secrets["GMAIL_APP_PASSWORD"]
+        notify_email = st.secrets["NOTIFY_EMAIL"]
+
+        msg = MIMEMultipart()
+        msg["From"] = gmail_address
+        msg["To"] = notify_email
+        msg["Subject"] = subject
+        msg.attach(MIMEText(body, "plain", "utf-8"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(gmail_address, app_password)
+            server.send_message(msg)
+        return True
+    except Exception as e:
+        return str(e)
+
+def send_daily_notification(df):
+    alert_items = get_expiring_items(df)
+    if not alert_items:
+        return
+
+    lines = ["【日用品管理アプリ】消費期限通知\n"]
+    lines.append("■ 消費期限が近い食材：")
+    for name, days in alert_items:
+        if days < 0:
+            lines.append(f"  ・{name}（期限切れ）")
+        else:
+            lines.append(f"  ・{name}（あと{days}日）")
+
+    food_items = df[df["カテゴリ"] == "食品"]["商品名"].tolist()
+    if food_items:
+        lines.append("\n■ 本日のレシピ提案（子ども向け・2人前）：")
+        recipe = get_recipe_suggestion(food_items, for_kids=True, servings=2)
+        lines.append(recipe)
+
+    body = "\n".join(lines)
+    send_email("【日用品管理】本日の消費期限通知＆献立提案", body)
+
+# ========== スケジューラー ==========
+def run_scheduler(df):
+    schedule.every().day.at("07:00").do(send_daily_notification, df)
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
+
+if "scheduler_started" not in st.session_state:
+    st.session_state.scheduler_started = False
+
+# ========== アプリ本体 ==========
 st.set_page_config(page_title="日用品管理", page_icon="🏠", layout="wide")
 st.title("🏠 日用品管理アプリ")
 
@@ -27,7 +150,13 @@ if "df" not in st.session_state:
 
 df = st.session_state.df
 
-tab1, tab2, tab3 = st.tabs(["📦 在庫一覧", "➕ 商品登録", "🛒 買い物リスト"])
+# スケジューラー起動（初回のみ）
+if not st.session_state.scheduler_started:
+    t = threading.Thread(target=run_scheduler, args=(st.session_state.df,), daemon=True)
+    t.start()
+    st.session_state.scheduler_started = True
+
+tab1, tab2, tab3, tab4 = st.tabs(["📦 在庫一覧", "➕ 商品登録", "🛒 買い物リスト", "🍳 献立提案"])
 
 # ========== タブ1: 在庫一覧 ==========
 with tab1:
@@ -36,19 +165,10 @@ with tab1:
     if df.empty:
         st.info("商品が登録されていません。「商品登録」タブから追加してください。")
     else:
-        today = date.today()
-        alert_items = []
-        for _, row in df.iterrows():
-            if pd.notna(row["消費期限"]) and str(row["消費期限"]).strip() != "":
-                try:
-                    exp = datetime.strptime(str(row["消費期限"]), "%Y-%m-%d").date()
-                    days_left = (exp - today).days
-                    if days_left <= 7:
-                        alert_items.append(f"{row['商品名']}（あと{days_left}日）")
-                except:
-                    pass
+        alert_items = get_expiring_items(st.session_state.df)
         if alert_items:
-            st.warning("⚠️ 消費期限が近い商品: " + "、".join(alert_items))
+            msg = "、".join([f"{n}（あと{d}日）" if d >= 0 else f"{n}（期限切れ）" for n, d in alert_items])
+            st.error(f"⚠️ 消費期限に注意： {msg}")
 
         categories = ["すべて"] + sorted(df["カテゴリ"].dropna().unique().tolist())
         selected_cat = st.selectbox("カテゴリで絞り込み", categories)
@@ -139,3 +259,40 @@ with tab3:
                 save_data(st.session_state.df)
                 st.success(f"「{toggle_item}」を買い物リストに追加しました。")
                 st.rerun()
+
+# ========== タブ4: 献立提案 ==========
+with tab4:
+    st.subheader("🍳 今日の献立提案")
+    st.caption("在庫中の食品カテゴリの食材をもとにAIが献立を提案します")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        for_kids = st.toggle("子どもも食べられるレシピ", value=True)
+    with col2:
+        servings = st.number_input("人数（人前）", min_value=1, max_value=10, value=2)
+
+    food_items = st.session_state.df[st.session_state.df["カテゴリ"] == "食品"]["商品名"].tolist()
+
+    if food_items:
+        st.write("**現在の食品在庫：**", "、".join(food_items))
+    else:
+        st.warning("食品カテゴリの在庫がありません。商品登録でカテゴリを「食品」にして登録してください。")
+
+    if st.button("🍽️ 献立を提案してもらう", type="primary"):
+        with st.spinner("AIが献立を考えています..."):
+            result = get_recipe_suggestion(food_items, for_kids, servings)
+        st.markdown(result)
+
+    st.divider()
+    st.subheader("📧 今すぐ通知メールを送る")
+    st.caption("毎朝7時に自動送信されますが、今すぐテスト送信もできます")
+    if st.button("テストメールを送信"):
+        with st.spinner("送信中..."):
+            result = send_email(
+                "【テスト】日用品管理アプリからの通知",
+                "このメールはテスト送信です。設定が正しく完了しています！"
+            )
+        if result is True:
+            st.success("メールを送信しました！受信ボックスを確認してください。")
+        else:
+            st.error(f"送信失敗：{result}")
