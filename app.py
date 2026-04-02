@@ -87,7 +87,7 @@ RECIPES = [
     },
     {
         "name": "チャーハン",
-        "keywords": ["卵", "ねぎ", "ハム", "ベーコン", "ご飯"],
+        "keywords": ["卵", "ねぎ", "ハム", "ベーコン"],
         "kids": True,
         "steps": ["卵をご飯に混ぜておく", "強火で炒めながら醤油・塩で味付け", "ねぎを加えてさっと炒めて完成"],
         "memo": "冷やご飯を使うとパラパラになります"
@@ -151,26 +151,36 @@ def get_expiring_items(df, days=7):
                 pass
     return alert_items
 
-# ========== レシピ提案 ==========
+# ========== レシピ提案（ランダム修正版） ==========
 def suggest_recipes(food_items, for_kids, servings, count=3):
     food_lower = [f.lower() for f in food_items]
+
     matched = []
+    unmatched = []
 
     for recipe in RECIPES:
+        # 子ども向けフィルター
         if for_kids and not recipe["kids"]:
             continue
         score = sum(1 for kw in recipe["keywords"] if any(kw in f or f in kw for f in food_lower))
         if score > 0:
             matched.append((score, recipe))
+        else:
+            unmatched.append(recipe)
 
+    # スコア順にソートしてからランダムに並び替え
     matched.sort(key=lambda x: -x[0])
-    top = matched[:count] if len(matched) >= count else matched
 
-    if not top:
-        return None
+    # 上位候補をランダムにシャッフルして選ぶ
+    high_score = [r for s, r in matched if s == matched[0][0]] if matched else []
+    rest = [r for s, r in matched if s != matched[0][0]] if matched else []
 
-    random.shuffle(top)
-    return [r for _, r in top]
+    random.shuffle(high_score)
+    random.shuffle(rest)
+    random.shuffle(unmatched)
+
+    candidates = high_score + rest + unmatched
+    return candidates[:count]
 
 def format_recipes(recipes, servings):
     if not recipes:
