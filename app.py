@@ -14,113 +14,203 @@ CSV_FILE = "daily_items.csv"
 COLUMNS = ["商品名", "カテゴリ", "在庫数", "単位", "消費期限", "買い物リスト"]
 
 # ========== レシピデータベース ==========
-RECIPES = [
-    {
-        "name": "肉じゃが",
-        "keywords": ["じゃがいも", "玉ねぎ", "にんじん", "牛肉", "豚肉"],
-        "kids": True,
-        "steps": ["肉と野菜を一口大に切る", "油で炒めてから水・醤油・みりん・砂糖で煮る", "汁気が少なくなったら完成"],
-        "memo": "甘めに仕上げると子どもが喜びます"
-    },
-    {
-        "name": "野菜炒め",
-        "keywords": ["キャベツ", "もやし", "にんじん", "玉ねぎ", "ピーマン", "豚肉", "鶏肉"],
-        "kids": True,
-        "steps": ["野菜と肉を食べやすい大きさに切る", "強火で炒めて塩・醤油・ごま油で味付け", "さっと仕上げて完成"],
-        "memo": "火を強くすることがシャキシャキのコツ"
-    },
-    {
-        "name": "カレーライス",
-        "keywords": ["じゃがいも", "にんじん", "玉ねぎ", "牛肉", "豚肉", "鶏肉"],
-        "kids": True,
-        "steps": ["野菜と肉を切って油で炒める", "水を加えて煮込みカレールーを溶かす", "ご飯と一緒に盛り付けて完成"],
-        "memo": "子ども向けは甘口ルーがおすすめ"
-    },
-    {
-        "name": "味噌汁",
-        "keywords": ["豆腐", "わかめ", "玉ねぎ", "なす", "じゃがいも", "大根", "にんじん"],
-        "kids": True,
-        "steps": ["具材を食べやすい大きさに切る", "出汁で煮て味噌を溶かす", "沸騰直前で火を止めて完成"],
-        "memo": "どんな具材でも合います"
-    },
-    {
-        "name": "親子丼",
-        "keywords": ["鶏肉", "卵", "玉ねぎ"],
-        "kids": True,
-        "steps": ["鶏肉と玉ねぎを出汁・醤油・みりんで煮る", "溶き卵を回しかけて半熟に仕上げる", "ご飯の上に乗せて完成"],
-        "memo": "卵を二段階で入れるとふわふわになります"
-    },
-    {
-        "name": "豚汁",
-        "keywords": ["豚肉", "大根", "にんじん", "じゃがいも", "玉ねぎ", "ごぼう"],
-        "kids": True,
-        "steps": ["野菜と豚肉を切って炒める", "水を加えて煮込み味噌を溶かす", "ごま油を少量たらして完成"],
-        "memo": "根菜たっぷりで栄養満点"
-    },
-    {
-        "name": "ハンバーグ",
-        "keywords": ["ひき肉", "玉ねぎ", "卵"],
-        "kids": True,
-        "steps": ["ひき肉・玉ねぎ・卵・パン粉をこねる", "形を整えてフライパンで両面焼く", "ソースをかけて完成"],
-        "memo": "中までしっかり火を通してください"
-    },
-    {
-        "name": "鶏の唐揚げ",
-        "keywords": ["鶏肉"],
-        "kids": True,
-        "steps": ["鶏肉を醤油・酒・生姜で下味をつける", "片栗粉をまぶして170℃の油で揚げる", "カリッとしたら完成"],
-        "memo": "二度揚げするとさらにカリカリに"
-    },
-    {
-        "name": "トマトパスタ",
-        "keywords": ["トマト", "玉ねぎ", "にんにく", "ひき肉", "ベーコン"],
-        "kids": True,
-        "steps": ["玉ねぎ・にんにくを炒めてトマトを加える", "パスタを茹でてソースと和える", "チーズをかけて完成"],
-        "memo": "缶トマトでも美味しく作れます"
-    },
-    {
-        "name": "大根と豚肉の煮物",
-        "keywords": ["大根", "豚肉"],
-        "kids": True,
-        "steps": ["大根を厚めに切り豚肉と炒める", "醤油・みりん・酒・砂糖で煮込む", "大根に味が染みたら完成"],
-        "memo": "大根は下茹でするとよく味が染みます"
-    },
-    {
-        "name": "チャーハン",
-        "keywords": ["卵", "ねぎ", "ハム", "ベーコン"],
-        "kids": True,
-        "steps": ["卵をご飯に混ぜておく", "強火で炒めながら醤油・塩で味付け", "ねぎを加えてさっと炒めて完成"],
-        "memo": "冷やご飯を使うとパラパラになります"
-    },
-    {
-        "name": "ほうれん草のおひたし",
-        "keywords": ["ほうれん草"],
-        "kids": True,
-        "steps": ["ほうれん草を塩茹でする", "冷水にとって水気を絞る", "醤油とかつおぶしで和えて完成"],
-        "memo": "シンプルだけど栄養たっぷり"
-    },
-    {
-        "name": "麻婆豆腐",
-        "keywords": ["豆腐", "ひき肉", "ねぎ"],
-        "kids": False,
-        "steps": ["ひき肉とねぎを炒めて豆板醤・醤油・酒で味付け", "豆腐を加えてさっと煮る", "水溶き片栗粉でとろみをつけて完成"],
-        "memo": "子ども向けは豆板醤を減らしてください"
-    },
-    {
-        "name": "生姜焼き",
-        "keywords": ["豚肉", "玉ねぎ"],
-        "kids": False,
-        "steps": ["豚肉を醤油・みりん・生姜で下味をつける", "玉ねぎと一緒に炒める", "タレを絡めて完成"],
-        "memo": "ご飯が進む定番おかず"
-    },
-    {
-        "name": "酢豚",
-        "keywords": ["豚肉", "ピーマン", "にんじん", "玉ねぎ"],
-        "kids": False,
-        "steps": ["豚肉に衣をつけて揚げる", "野菜を炒めて酢・砂糖・醤油のタレを加える", "揚げた豚肉を絡めて完成"],
-        "memo": "パイナップルを加えると本格的に"
-    },
-]
+RECIPES = {
+    "主菜": [
+        {
+            "name": "肉じゃが",
+            "keywords": ["じゃがいも", "玉ねぎ", "にんじん", "牛肉", "豚肉"],
+            "kids": True,
+            "steps": ["肉と野菜を一口大に切る", "油で炒めてから水・醤油・みりん・砂糖で煮る", "汁気が少なくなったら完成"],
+            "memo": "甘めに仕上げると子どもが喜びます"
+        },
+        {
+            "name": "カレーライス",
+            "keywords": ["じゃがいも", "にんじん", "玉ねぎ", "牛肉", "豚肉", "鶏肉"],
+            "kids": True,
+            "steps": ["野菜と肉を切って油で炒める", "水を加えて煮込みカレールーを溶かす", "ご飯と一緒に盛り付けて完成"],
+            "memo": "子ども向けは甘口ルーがおすすめ"
+        },
+        {
+            "name": "親子丼",
+            "keywords": ["鶏肉", "卵", "玉ねぎ"],
+            "kids": True,
+            "steps": ["鶏肉と玉ねぎを出汁・醤油・みりんで煮る", "溶き卵を回しかけて半熟に仕上げる", "ご飯の上に乗せて完成"],
+            "memo": "卵を二段階で入れるとふわふわになります"
+        },
+        {
+            "name": "ハンバーグ",
+            "keywords": ["ひき肉", "玉ねぎ", "卵"],
+            "kids": True,
+            "steps": ["ひき肉・玉ねぎ・卵・パン粉をこねる", "形を整えてフライパンで両面焼く", "ソースをかけて完成"],
+            "memo": "中までしっかり火を通してください"
+        },
+        {
+            "name": "鶏の唐揚げ",
+            "keywords": ["鶏肉"],
+            "kids": True,
+            "steps": ["鶏肉を醤油・酒・生姜で下味をつける", "片栗粉をまぶして170℃の油で揚げる", "カリッとしたら完成"],
+            "memo": "二度揚げするとさらにカリカリに"
+        },
+        {
+            "name": "トマトパスタ",
+            "keywords": ["トマト", "玉ねぎ", "にんにく", "ひき肉", "ベーコン"],
+            "kids": True,
+            "steps": ["玉ねぎ・にんにくを炒めてトマトを加える", "パスタを茹でてソースと和える", "チーズをかけて完成"],
+            "memo": "缶トマトでも美味しく作れます"
+        },
+        {
+            "name": "大根と豚肉の煮物",
+            "keywords": ["大根", "豚肉"],
+            "kids": True,
+            "steps": ["大根を厚めに切り豚肉と炒める", "醤油・みりん・酒・砂糖で煮込む", "大根に味が染みたら完成"],
+            "memo": "大根は下茹でするとよく味が染みます"
+        },
+        {
+            "name": "チャーハン",
+            "keywords": ["卵", "ねぎ", "ハム", "ベーコン"],
+            "kids": True,
+            "steps": ["卵をご飯に混ぜておく", "強火で炒めながら醤油・塩で味付け", "ねぎを加えてさっと炒めて完成"],
+            "memo": "冷やご飯を使うとパラパラになります"
+        },
+        {
+            "name": "麻婆豆腐",
+            "keywords": ["豆腐", "ひき肉", "ねぎ"],
+            "kids": False,
+            "steps": ["ひき肉とねぎを炒めて豆板醤・醤油・酒で味付け", "豆腐を加えてさっと煮る", "水溶き片栗粉でとろみをつけて完成"],
+            "memo": "子ども向けは豆板醤を減らしてください"
+        },
+        {
+            "name": "生姜焼き",
+            "keywords": ["豚肉", "玉ねぎ"],
+            "kids": False,
+            "steps": ["豚肉を醤油・みりん・生姜で下味をつける", "玉ねぎと一緒に炒める", "タレを絡めて完成"],
+            "memo": "ご飯が進む定番おかず"
+        },
+        {
+            "name": "酢豚",
+            "keywords": ["豚肉", "ピーマン", "にんじん", "玉ねぎ"],
+            "kids": False,
+            "steps": ["豚肉に衣をつけて揚げる", "野菜を炒めて酢・砂糖・醤油のタレを加える", "揚げた豚肉を絡めて完成"],
+            "memo": "パイナップルを加えると本格的に"
+        },
+        {
+            "name": "鮭の塩焼き",
+            "keywords": ["鮭", "魚"],
+            "kids": True,
+            "steps": ["鮭に塩をふって10分おく", "グリルまたはフライパンで両面焼く", "大根おろしと一緒に盛り付けて完成"],
+            "memo": "皮までカリッと焼くと美味しい"
+        },
+    ],
+    "副菜": [
+        {
+            "name": "野菜炒め",
+            "keywords": ["キャベツ", "もやし", "にんじん", "玉ねぎ", "ピーマン", "豚肉", "鶏肉"],
+            "kids": True,
+            "steps": ["野菜と肉を食べやすい大きさに切る", "強火で炒めて塩・醤油・ごま油で味付け", "さっと仕上げて完成"],
+            "memo": "火を強くすることがシャキシャキのコツ"
+        },
+        {
+            "name": "ほうれん草のおひたし",
+            "keywords": ["ほうれん草"],
+            "kids": True,
+            "steps": ["ほうれん草を塩茹でする", "冷水にとって水気を絞る", "醤油とかつおぶしで和えて完成"],
+            "memo": "シンプルだけど栄養たっぷり"
+        },
+        {
+            "name": "きんぴらごぼう",
+            "keywords": ["ごぼう", "にんじん"],
+            "kids": True,
+            "steps": ["ごぼうとにんじんを細切りにする", "ごま油で炒めて醤油・みりん・砂糖で味付け", "ごまをふって完成"],
+            "memo": "食物繊維たっぷりの常備菜"
+        },
+        {
+            "name": "ブロッコリーのごま和え",
+            "keywords": ["ブロッコリー"],
+            "kids": True,
+            "steps": ["ブロッコリーを小房に分けて塩茹でする", "水気を切って醤油・砂糖・すりごまで和える", "器に盛って完成"],
+            "memo": "茹ですぎないのがコツ"
+        },
+        {
+            "name": "かぼちゃの煮物",
+            "keywords": ["かぼちゃ"],
+            "kids": True,
+            "steps": ["かぼちゃを一口大に切る", "だし・醤油・みりん・砂糖で煮る", "柔らかくなったら完成"],
+            "memo": "甘めにすると子どもが喜びます"
+        },
+        {
+            "name": "ナスの揚げびたし",
+            "keywords": ["なす"],
+            "kids": True,
+            "steps": ["なすを縦に切り素揚げする", "だし・醤油・みりんのタレに漬ける", "冷やして盛り付けて完成"],
+            "memo": "冷やすとさらに美味しい"
+        },
+        {
+            "name": "玉ねぎのサラダ",
+            "keywords": ["玉ねぎ"],
+            "kids": True,
+            "steps": ["玉ねぎを薄切りにして水にさらす", "水気を切ってかつおぶしをのせる", "ポン酢をかけて完成"],
+            "memo": "水にさらすと辛みが抜けます"
+        },
+        {
+            "name": "豆腐ステーキ",
+            "keywords": ["豆腐"],
+            "kids": True,
+            "steps": ["豆腐の水気をよく切る", "フライパンで両面こんがり焼く", "醤油・みりんのタレをかけて完成"],
+            "memo": "しっかり水切りすることが大切"
+        },
+        {
+            "name": "卵焼き",
+            "keywords": ["卵"],
+            "kids": True,
+            "steps": ["卵に砂糖・醤油・だしを混ぜる", "卵焼き器で巻きながら焼く", "切り分けて盛り付けて完成"],
+            "memo": "甘めが子どものお弁当にも人気"
+        },
+    ],
+    "汁物": [
+        {
+            "name": "味噌汁",
+            "keywords": ["豆腐", "わかめ", "玉ねぎ", "なす", "じゃがいも", "大根", "にんじん", "ねぎ"],
+            "kids": True,
+            "steps": ["具材を食べやすい大きさに切る", "出汁で煮て味噌を溶かす", "沸騰直前で火を止めて完成"],
+            "memo": "どんな具材でも合います"
+        },
+        {
+            "name": "豚汁",
+            "keywords": ["豚肉", "大根", "にんじん", "じゃがいも", "玉ねぎ", "ごぼう"],
+            "kids": True,
+            "steps": ["野菜と豚肉を切って炒める", "水を加えて煮込み味噌を溶かす", "ごま油を少量たらして完成"],
+            "memo": "根菜たっぷりで栄養満点"
+        },
+        {
+            "name": "卵スープ",
+            "keywords": ["卵", "ねぎ", "玉ねぎ"],
+            "kids": True,
+            "steps": ["鶏がらスープに具材を入れて煮る", "溶き卵を回し入れてかき玉にする", "塩・こしょうで味を調えて完成"],
+            "memo": "体が温まるやさしいスープ"
+        },
+        {
+            "name": "コーンスープ",
+            "keywords": ["コーン", "玉ねぎ"],
+            "kids": True,
+            "steps": ["玉ねぎをバターで炒める", "コーンと牛乳を加えて煮る", "塩・こしょうで味を調えて完成"],
+            "memo": "子どもに大人気の甘いスープ"
+        },
+        {
+            "name": "トマトスープ",
+            "keywords": ["トマト", "玉ねぎ", "にんじん"],
+            "kids": True,
+            "steps": ["野菜を炒めてトマトを加える", "コンソメスープで煮込む", "塩・こしょうで味を調えて完成"],
+            "memo": "野菜の旨みが溶け込んだ一品"
+        },
+        {
+            "name": "けんちん汁",
+            "keywords": ["大根", "にんじん", "ごぼう", "豆腐", "こんにゃく"],
+            "kids": True,
+            "steps": ["根菜・豆腐・こんにゃくを切ってごま油で炒める", "だしを加えて煮込む", "醤油・塩で味を調えて完成"],
+            "memo": "体が温まる栄養たっぷりの汁物"
+        },
+    ]
+}
 
 # ========== データ読み書き ==========
 def load_data():
@@ -151,15 +241,15 @@ def get_expiring_items(df, days=7):
                 pass
     return alert_items
 
-# ========== レシピ提案（ランダム修正版） ==========
-def suggest_recipes(food_items, for_kids, servings, count=3):
+# ========== レシピ提案 ==========
+def suggest_by_category(food_items, for_kids, category):
     food_lower = [f.lower() for f in food_items]
+    recipes = RECIPES.get(category, [])
 
     matched = []
     unmatched = []
 
-    for recipe in RECIPES:
-        # 子ども向けフィルター
+    for recipe in recipes:
         if for_kids and not recipe["kids"]:
             continue
         score = sum(1 for kw in recipe["keywords"] if any(kw in f or f in kw for f in food_lower))
@@ -168,31 +258,28 @@ def suggest_recipes(food_items, for_kids, servings, count=3):
         else:
             unmatched.append(recipe)
 
-    # スコア順にソートしてからランダムに並び替え
     matched.sort(key=lambda x: -x[0])
+    top_score = matched[0][0] if matched else 0
+    high = [r for s, r in matched if s == top_score]
+    rest = [r for s, r in matched if s != top_score]
 
-    # 上位候補をランダムにシャッフルして選ぶ
-    high_score = [r for s, r in matched if s == matched[0][0]] if matched else []
-    rest = [r for s, r in matched if s != matched[0][0]] if matched else []
-
-    random.shuffle(high_score)
+    random.shuffle(high)
     random.shuffle(rest)
     random.shuffle(unmatched)
 
-    candidates = high_score + rest + unmatched
-    return candidates[:count]
+    candidates = high + rest + unmatched
+    return candidates[0] if candidates else None
 
-def format_recipes(recipes, servings):
-    if not recipes:
-        return "在庫食材に合うレシピが見つかりませんでした。食品カテゴリに食材を登録してみてください。"
-    lines = []
-    for i, r in enumerate(recipes, 1):
-        lines.append(f"### {i}. {r['name']}（{servings}人前）")
-        lines.append(f"💡 {r['memo']}")
-        lines.append("**作り方：**")
-        for j, step in enumerate(r["steps"], 1):
-            lines.append(f"{j}. {step}")
-        lines.append("")
+def format_recipe_card(recipe, category, servings):
+    if not recipe:
+        return f"**{category}**：在庫食材に合うレシピが見つかりませんでした。"
+    lines = [
+        f"#### 🍽️ {category}：{recipe['name']}（{servings}人前）",
+        f"💡 {recipe['memo']}",
+        "**作り方：**",
+    ]
+    for i, step in enumerate(recipe["steps"], 1):
+        lines.append(f"{i}. {step}")
     return "\n".join(lines)
 
 # ========== Gmail送信 ==========
@@ -230,16 +317,16 @@ def build_notification_body(df):
         lines.append("■ 消費期限が近い食材：なし")
 
     food_items = df[df["カテゴリ"] == "食品"]["商品名"].tolist()
-    lines.append("\n■ 本日のレシピ提案（子ども向け・2人前）：")
-    recipes = suggest_recipes(food_items, for_kids=True, servings=2)
-    if recipes:
-        for i, r in enumerate(recipes, 1):
-            lines.append(f"\n{i}. {r['name']}")
-            lines.append(f"   {r['memo']}")
-            for j, step in enumerate(r["steps"], 1):
-                lines.append(f"   {j}. {step}")
-    else:
-        lines.append("  食品カテゴリの在庫がないためレシピを提案できませんでした。")
+    lines.append("\n■ 本日の献立提案（子ども向け・2人前）：")
+    for cat in ["主菜", "副菜", "汁物"]:
+        recipe = suggest_by_category(food_items, for_kids=True, category=cat)
+        if recipe:
+            lines.append(f"\n【{cat}】{recipe['name']}")
+            lines.append(f"  {recipe['memo']}")
+            for i, step in enumerate(recipe["steps"], 1):
+                lines.append(f"  {i}. {step}")
+        else:
+            lines.append(f"\n【{cat}】該当レシピなし")
 
     return "\n".join(lines)
 
@@ -376,7 +463,7 @@ with tab3:
 # ========== タブ4: 献立提案 ==========
 with tab4:
     st.subheader("🍳 今日の献立提案")
-    st.caption("在庫中の食品カテゴリの食材をもとにレシピを提案します")
+    st.caption("在庫中の食品カテゴリの食材をもとに主菜・副菜・汁物を提案します")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -391,12 +478,13 @@ with tab4:
     else:
         st.warning("食品カテゴリの在庫がありません。「商品登録」でカテゴリを「食品」にして食材を登録してください。")
 
-    if st.button("🍽️ 献立を提案する", type="primary"):
-        recipes = suggest_recipes(food_items, for_kids, servings)
-        formatted = format_recipes(recipes, servings)
-        st.markdown(formatted)
+    if st.button("🍽️ 今日の献立を提案する", type="primary"):
+        st.divider()
+        for cat in ["主菜", "副菜", "汁物"]:
+            recipe = suggest_by_category(food_items, for_kids, cat)
+            st.markdown(format_recipe_card(recipe, cat, servings))
+            st.divider()
 
-    st.divider()
     st.subheader("📧 メール通知")
     st.caption("毎朝7時に消費期限アラート＋献立提案を自動送信します")
     if st.button("今すぐテストメールを送信"):
